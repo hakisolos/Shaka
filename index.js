@@ -1,17 +1,20 @@
 import { Client, GatewayIntentBits, Collection } from 'discord.js';
-import config from './config.js';
+import dotenv from 'dotenv';
 import fs from 'fs';
+
+// Load environment variables
+dotenv.config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Create a Collection to store commands
 client.commands = new Collection();
 
-// Load command files from the commands folder
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+// Load command files from the plugins folder
+const commandFiles = fs.readdirSync('./plugins').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-  const command = await import(`./commands/${file}`);
+  const command = await import(`./plugins/${file}`);
   client.commands.set(command.default.name, command.default);
 }
 
@@ -34,5 +37,4 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// Use token from config.js
-client.login(config.TOKEN);
+client.login(process.env.TOKEN);
